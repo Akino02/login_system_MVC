@@ -117,23 +117,25 @@ exports.signInUser = async (req, res) => {
 
     if(!existingEmail){
       return res.status(500).send({
-        msg: "User does not exists"
+        msg: "User does not exist"
       })
     }
 
     //chyba v tom result
     //const result = await data.save();
+    //pokud se heslo bude shodovat s heslem v databazi tak se vytvori token ve kterem bude email a ktery vyprsi za 10ms
     if (existingEmail && await bcrypt.compare(req.body.password, existingEmail.password)) {
-      const token = jwt.sign({email: existingEmail.email}, JWT_SECRET)
+      const token = jwt.sign({email: existingEmail.email}, JWT_SECRET, {
+        expiresIn: 10,
+      })
 
+      //pokud tedy heslo bylo dobre tak se ten token posle na clienta v payloadu
       return res.status(201).send({
         msg: "User exists",
         payload: token,
       });
     }
-    else {
-      //res.send(console.log("Wrong password"))
-      console.log("Ahoj")
+    else {    //pokud bude heslo spatne tak to vypise chybovou hlasku na stranku a zaroven bude v clientu error v konzoli
       return res.status(500).send({
         msg: "Wrong password"
       })
@@ -148,9 +150,21 @@ exports.getUserData = async (req, res) => {
     token: req.body.token,
   });
   try {
-    const user = jwt.verify(data.token, JWT_SECRET)
+    const user = jwt.verify(data.token, JWT_SECRET, (err, res) => {
+      if(err){
+        return "token expired"
+      }
+      return res
+    });
+    if(user == "token expired"){
+      return res.send({
+        msg: "No more data",
+        payload: "token expired"
+      })
+    }
     if(user){
       const userData = await User.findOne({"email": user.email})
+      
       return res.status(200).send({
         msg: "It is here",
         payload: userData,

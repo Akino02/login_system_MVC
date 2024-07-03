@@ -72,6 +72,12 @@ export const getUserData = async (formData) => {
     body: JSON.stringify({"token": window.localStorage.getItem("token")}),
   });
   const data = await req.json();
+  //pokud tedy token vyprsel tak se stranka restartuje a da na login page
+  if(data.payload == "token expired"){
+    alert("Token expired please log in again")
+    window.localStorage.clear();
+    window.location.href = "/login"
+  }
   return {
     status: req.status,
     payload: data.payload,

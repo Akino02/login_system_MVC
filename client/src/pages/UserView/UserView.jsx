@@ -12,22 +12,23 @@ export default function UserView() {
 
   const load = async () => {
     const data = await getUserData(token);
-    console.log(data.payload)
+    console.log(data)
     if (data.status === 500 || data.status === 404) return setLoaded(null);
     if (data.status === 200) {
       setUser(data.payload);
+      setInfo(data.msg)
       setLoaded(true);
     }
   }
 
   useEffect(() => {
     load();
-    
-    //pokud neni token ulozen tak ho to presmeruje automaticky na log in stranku
-    if(window.localStorage.getItem("token") == undefined){
-      navigate("/login")
-    }
   }, []);
+
+  const logOut = () => {
+    window.localStorage.clear();
+    navigate("/login");
+  }
 
   /*const handleChange = (e) => {
     setFormData(e.target.value);
@@ -50,7 +51,9 @@ export default function UserView() {
   if (isLoaded === null) {
     return (
       <>
+        {info}
         <p>User not found</p>
+        <button onClick={logOut} >Log out</button>
       </>
     )
   }
@@ -58,13 +61,16 @@ export default function UserView() {
   if (!isLoaded) {
     return (
       <>
+        {info}
         <p>User is loading...</p>
+        <button onClick={logOut} >Log out</button>
       </>
     )
   }
 
   return (
     <>
+      {info}
       <h1>User view</h1>
       <p>{user._id}</p>
       <p>{user.fname}</p>
@@ -78,9 +84,10 @@ export default function UserView() {
       <Link to={`/updatecat/${id}`}>
         <p>Update cat</p>
       </Link>*/}
-      <Link to={"/"}>
+      <button onClick={logOut} >Log out</button>
+      {/*<Link to={"/"}>
         <p>Go back</p>
-      </Link>
+      </Link>*/}
     </>
   );
 }

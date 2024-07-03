@@ -6,6 +6,7 @@ export default function UserLogin() {
   const [formData, setFormData] = useState();
   const [info, setInfo] = useState();
   const navigate = useNavigate();
+  const [remember, setRemember] = useState(false);
 
   //kdyz ten token bude existovat tak ho to prevede na stranku s jeho daty
   /*const [token, setToken] = useState(window.localStorage.getItem("token"));
@@ -22,7 +23,13 @@ export default function UserLogin() {
     const user = await signInUser(formData);
     console.log(user)
     if (user.status === 201) {
+      /*if(remember == true){
+        window.localStorage.setItem("token", user.payload)
+        window.localStorage.setItem("loggedIn", true)
+      }*/
       window.localStorage.setItem("token", user.payload)
+      window.localStorage.setItem("isLogged", true)
+
       redirectToSuccessPage();
     } else {
       setInfo(user.msg);
@@ -31,12 +38,24 @@ export default function UserLogin() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    console.log(remember)
   };
 
   const handlePost = (e) => {
     e.preventDefault();
     postForm();
   };
+
+  /*const handleRemember = (e) => {
+    if(e.target.checked == true){
+      e.target.value = e.target.checked
+      setRemember(e.target.checked)
+    }
+    else{
+      e.target.value = e.target.checked
+      setRemember(e.target.checked)
+    }
+  }*/
 
   const redirectToSuccessPage = (id) => {
     return navigate(`/userview`);
@@ -72,6 +91,11 @@ export default function UserLogin() {
               onChange={(e) => handleChange(e)}
             />
           </div>
+
+          {/*<div style={{display: "flex", flexDirection: "row", marginTop: "10px"}}>
+            <label>Remember me</label>
+            <input type="checkbox" onChange={handleRemember} />
+          </div>*/}
 
           <div style={{textAlign: "center" ,marginTop: "20px"}}>
             <button onClick={handlePost}>Log in</button>
